@@ -5,7 +5,7 @@
 ## Usage
 
 ```yaml
-- uses: Framework-R-D/action-setup-build-env@v1  # pin to commit SHA in production
+- uses: Framework-R-D/action-setup-build-env@780fd75b00a291df6a42d9d2337651330ebdb907 # v1
   with:
     input-name: value
 ```
