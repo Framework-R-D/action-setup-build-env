@@ -41,6 +41,24 @@ class SetupPathsTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 setup(root, "source", "escape/build")
 
+    def test_resolved_symlink_control_characters_are_rejected(self) -> None:
+        """A symlink target cannot inject extra GitHub output records."""
+        with tempfile.TemporaryDirectory(prefix="setup-paths-test-") as tmp:
+            root = Path(tmp)
+            unsafe_target = root / "safe\nsource-dir=/tmp/other"
+            unsafe_target.mkdir(parents=True)
+            (root / "unsafe-source").symlink_to(unsafe_target, target_is_directory=True)
+            with self.assertRaisesRegex(ValueError, "control characters"):
+                setup(root, "unsafe-source", "build")
+            self.assertFalse((root / "build").exists())
+
+            safe_target = root / "safe-source"
+            safe_target.mkdir()
+            (root / "safe-alias").symlink_to(safe_target, target_is_directory=True)
+            source, build = setup(root, "safe-alias", "build")
+            self.assertEqual(source, safe_target.resolve())
+            self.assertTrue(build.is_dir())
+
 
 if __name__ == "__main__":
     unittest.main()

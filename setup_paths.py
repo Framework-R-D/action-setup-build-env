@@ -17,6 +17,8 @@ def contained_path(root: Path, value: str) -> Path:
     ):
         raise ValueError("Expected a nonempty workspace-relative path without traversal")
     candidate = (root / value).resolve()
+    if any(ord(char) < 32 or ord(char) == 127 for char in str(candidate)):
+        raise ValueError("Resolved path contains control characters")
     if candidate == root or not candidate.is_relative_to(root):
         raise ValueError("Path escapes workspace")
     return candidate
